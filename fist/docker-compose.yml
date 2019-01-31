@@ -1,0 +1,65 @@
+version: '3'
+
+volumes:
+  mongo_dbdata:
+  user_data:
+  mongo_backup:
+
+networks:
+  mattermost_default:
+    external: true
+
+services:
+  fist:
+    image: piemonkey/volunteers-nowhere:latest
+    restart: always
+    links:
+      - mongo
+    networks:
+      - mattermost_default
+      - default
+    environment:
+      - MONGO_URL=mongodb://mongo/volunteers
+      - ROOT_URL=https://fist.goingnowhere.org
+      - DELAY=4
+      - MANDRILL_API_USER=
+      - MANDRILL_API_KEY=
+      - QUICKET_API_KEY=
+      - QUICKET_USER_TOKEN=
+      - QUICKET_EVENT_ID=
+      - NODE_ENV=production
+    labels:
+      - traefik.frontend.rule=Host:fist.goingnowhere.org
+      - traefik.frontend.entryPoints=https
+      - traefik.enable=true
+      - traefik.port=80
+      - traefik.docker.network=mattermost_default
+    volumes:
+      - user_data:/app/programs/server/profilePictures
+
+  mongo:
+    image: mongo:4.0-xenial
+    command: mongod --storageEngine=wiredTiger
+    restart: always
+    volumes:
+      - mongo_dbdata:/data/db
+    labels:
+      - traefik.enable=false
+
+  # TODO Switch this out for a different image, e.g. one with simple recovery instructions
+  mongo-backup:
+    image: tiredofit/mongodb-backup
+    restart: always
+    links:
+      - mongo
+    environment:
+      - DB_HOST=mongo
+      - DB_DUMP_FREQ=720
+      - DB_DUMP_BEGIN=0000
+      - DB_CLEANUP_TIME=8640
+      - MD5=TRUE
+      - COMPRESSION=XZ
+    volumes:
+      - mongo_backup:/backups
+    labels:
+      - traefik.enable=false
