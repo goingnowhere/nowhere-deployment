@@ -1,0 +1,19 @@
+version: '3'
+
+networks:
+  traefik:
+
+services:
+  traefik:
+    image: traefik:1.7.7
+    command: --docker --docker.exposedbydefault=false
+    networks:
+      - traefik
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to Docker events
+      - ./traefik.toml:/etc/traefik/traefik.toml
+      - ./volumes/acme.json:/acme.json # Maintain Let's Encrypt if container destroyed

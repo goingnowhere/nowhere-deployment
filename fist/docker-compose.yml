@@ -6,7 +6,7 @@ volumes:
   mongo_backup:
 
 networks:
-  mattermost_default:
+  traefik:
     external: true
 
 services:
@@ -16,7 +16,7 @@ services:
     links:
       - mongo
     networks:
-      - mattermost_default
+      - traefik
       - default
     environment:
       - MONGO_URL=mongodb://mongo/volunteers
@@ -33,7 +33,7 @@ services:
       - traefik.frontend.entryPoints=https
       - traefik.enable=true
       - traefik.port=80
-      - traefik.docker.network=mattermost_default
+      - traefik.docker.network=traefik
     volumes:
       - user_data:/app/programs/server/profilePictures
 
