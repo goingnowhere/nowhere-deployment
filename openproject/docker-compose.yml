@@ -29,7 +29,7 @@ services:
       - SMTP_USER_NAME=${SMTP_USER_NAME}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
     labels:
-      - traefik.frontend.rule=Host:project.goingnowhere.org
+      - traefik.frontend.rule=Host:masterplan.goingnowhere.org
       - traefik.frontend.entryPoints=https
       - traefik.enable=true
       - traefik.port=80
@@ -39,7 +39,7 @@ services:
       - static:/var/db/openproject
 
   postgres:
-    image: postgres:11.2
+    image: postgres:9.6
     restart: always
     environment:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
