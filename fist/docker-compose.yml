@@ -21,7 +21,6 @@ services:
     environment:
       - MONGO_URL=mongodb://mongo/volunteers
       - ROOT_URL=https://fist.goingnowhere.org
-      - DELAY=4
       - MANDRILL_API_USER=
       - MANDRILL_API_KEY=
       - QUICKET_API_KEY=

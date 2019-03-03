@@ -1,0 +1,51 @@
+version: '3'
+
+volumes:
+  logs:
+  static:
+  dbdata:
+
+networks:
+  traefik_traefik:
+    external: true
+
+services:
+  openproject:
+    image: openproject/community:8.2.1
+    restart: always
+    links:
+      - postgres
+    networks:
+      - traefik_traefik
+      - default
+    environment:
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@postgres/postgres
+      - EMAIL_DELIVERY_METHOD=${EMAIL_METHOD:-smtp}
+      - SMTP_ADDRESS=${SMTP_ADDRESS:-mail.goingnowhere.org}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_DOMAIN=${SMTP_DOMAIN:-goingnowhere.org}
+      - SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION:-plain}
+      - SMTP_USER_NAME=${SMTP_USER_NAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+    labels:
+      - traefik.frontend.rule=Host:project.goingnowhere.org
+      - traefik.frontend.entryPoints=https
+      - traefik.enable=true
+      - traefik.port=80
+      - traefik.docker.network=traefik_traefik
+    volumes:
+      - logs:/var/log/supervisor
+      - static:/var/db/openproject
+
+  postgres:
+    image: postgres:11.2
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    labels:
+      - traefik.enable=false
+
+  # TODO Add backup container
